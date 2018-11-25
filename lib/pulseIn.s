@@ -6,6 +6,7 @@
 ; Declare external references
 
     xdef _pulseIn
+    xdef _pulseInLong
 
     xref c_lgursh
     xref c_lreg
@@ -35,6 +36,7 @@ LONG250:                dc.l 250
 ; XL = pulse type (HIGH or LOW)
 ; SP3 = timeout
 _pulseIn:
+_pulseInLong:
     pushw x             ; SP1=pNum, SP2=pulse, SP5=timeout
     subw sp,#15         ; setup stack frame
 NOW:                    equ 1
