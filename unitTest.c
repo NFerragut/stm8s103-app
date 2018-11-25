@@ -1,8 +1,16 @@
 /*******************************************************************************
 
     unitTest.c
-    
+
     Functions for unit tests.
+    Jumper wires are required for these tests:
+        A1 ( 0)  <--->  ( 1) A2
+        A3 ( 2)  <--->  (13) D4
+        B4 ( 4)  <--->  ( 5) C3
+        C4 ( 6)  <--->  ( 7) C5
+        C6 ( 8)  <--->  ( 9) C7
+        D2 (11)  <--->  (12) D3
+        D5 (14)  <--->  (15) D6
 
 *******************************************************************************/
 
@@ -117,11 +125,11 @@ void assert(uint8_t test) {
 // Return 1 if all tests pass; otherwise 0
 uint8_t runUnitTests(void) {
     PASS();
-    testBitsAndBytes();
-    testTime();
-    testDigitalIo();
-    testAnalogIo();
-    testAdvancedIo();
+    // testBitsAndBytes();
+    // testTime();
+    // testDigitalIo();
+    // testAnalogIo();
+    // testAdvancedIo();
     testSerialCommunication();
     return (uint8_t)DID_PASS();
 }
@@ -521,14 +529,18 @@ static void testDigitalIo(void) {
 //  - serialWriteBuffer()
 //  - serialWriteString()
 static void testSerialCommunication(void) {
+    int16_t result;
+
     // test writing and reading serial data one byte at a time
     serialBegin(115200, SERIAL_8N1);
     uint16_t val;
     for (val = 0; val < 256; val++) {
         ASSERT(serialWrite((uint8_t)val) == 1);
         delayMicroseconds((val == 0) ? 200 : 110);
-        uint16_t feedback = serialRead();
-        ASSERT(feedback == val);
+        result = serialPeek();
+        ASSERT(result == val);
+        result = serialRead();
+        ASSERT(result == val);
     }
     serialEnd();
 
@@ -562,6 +574,32 @@ static void testSerialCommunication(void) {
             checkSerialConfig(baudRates[baud], cfg);
         }
     }
+
+    // test serial find functions
+    char target1[] = "Hello";
+    serialBegin(115200, SERIAL_8N1);
+    serialWriteBuffer(buffer, BUFFER_LENGTH);
+    result = serialFind(target1);
+    ASSERT(result == 1);
+    result = serialPeek();
+    ASSERT(result == -1);
+    result = serialFind(target1);
+    ASSERT(result == 0);
+    result = serialAvailable();
+    ASSERT(result == 0);
+    serialWriteBuffer(buffer, BUFFER_LENGTH);
+    result = serialFindUntil(target1, "o");
+    ASSERT(result == 1);
+    result = serialPeek();
+    ASSERT(result == -1);
+    result = serialFindUntil("World", "rl");
+    ASSERT(result == 0);
+    result = serialPeek();
+    ASSERT(result == -1);
+    delayMicroseconds(300);
+    result = serialAvailable();
+    ASSERT(result > 0);
+    serialEnd();
 }
 
 // Test Time category

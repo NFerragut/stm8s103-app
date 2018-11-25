@@ -10,7 +10,7 @@ AFLAGS = -iinc -l
 # Compiler
 CC = cxstm8
 OUTDIR = Debug
-CFLAGS = -cl$(OUTDIR) -co$(OUTDIR) -dDEBUG -iinc -pc99 -l +compact +debug +mods0 +proto +strict +warn
+CFLAGS = -cl$(OUTDIR) -co$(OUTDIR) -dDEBUG -iinc -pc99 -l +debug +mods0 +proto +strict +warn
 
 # Library
 LIBDIR = lib

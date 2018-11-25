@@ -34,7 +34,7 @@ rxTimeout:              ds.l 1
 ; validates the rxTimeout
 ; sets start time to current time
 ; SP3 = start time to set
-; returns all registers unchanged
+; returns A,X,Y registers unchanged
 serialTimerStart:
     pushw x
     ldw x,rxTimeout     ; if (rxTimeout is negative) goto sstUseDefault

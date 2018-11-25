@@ -215,16 +215,16 @@ uint32_t bit(uint8_t bitNumber);
 // param bitNumber = the number of the bit to clear (0-31)
 void bitClear(uint32_t* value, uint8_t bitNumber);
 
-// Write a 1 to a bit of a value
-// param value = pointer to a 32-bit value
-// param bitNumber = the number of the bit to set (0-31)
-void bitSet(uint32_t* value, uint8_t bitNumber);
-
 // Read a bit of value
 // param value = the 32-bit value to read
 // param bitNumber = the number of the bit to read (0-31)
 // Returns the value of the bit that was read (0 or 1)
 uint8_t bitRead(uint32_t value, uint8_t bitNumber);
+
+// Write a 1 to a bit of a value
+// param value = pointer to a 32-bit value
+// param bitNumber = the number of the bit to set (0-31)
+void bitSet(uint32_t* value, uint8_t bitNumber);
 
 // Write a bit of value
 // param value = pointer to a 32-bit value
@@ -272,7 +272,7 @@ void noTone(pinType pin);
 //              - OUTPUT_FAST pin can drive HIGH or LOW
 void pinMode(pinType pin, modeType mode);
 
-// Read a pulse on a pin.
+// Read a pulse on a pin
 // Most accurate with short pulse durations
 // param pin = the pin used to read the pulse
 // param value = the polarity of the pulse
@@ -288,7 +288,7 @@ int32_t pulseIn(pinType pin, uint8_t value, int32_t timeout);
 //          LOW to read a low pulse, HIGH to read a high pulse
 // param timeout = the maximum microseconds to wait for the completion of the pulse
 // Returns the width of the pulse from edge to edge
-uint32_t pulseInLong(pinType pin, uint8_t value, int32_t timeout);
+int32_t pulseInLong(pinType pin, uint8_t value, int32_t timeout);
 
 // Get the number of bytes available for reading from the serial port
 // Returns the number of bytes available to read
@@ -302,8 +302,32 @@ void serialBegin(uint32_t speed, serialConfigType config);
 // Close the serial port so pins 14 and 15 can be used as general purpose I/O
 void serialEnd(void);
 
+// Read data from the serial buffer until a target string is found
+// param target = the string to search for
+// Return true if the target string is found, return false if a timeout occurs
+uint8_t serialFind(char* target);
+
+// Read data from the serial buffer until a target string or terminator string
+// is found.
+// param target = the string to search for
+// param terminal = the terminal string in the search
+// Return true if the target string is found, return false if the terminal
+//        string is found or if a timeout occurs
+uint8_t serialFindUntil(char* target, char* terminal);
+
 // Wait for the transmission of outgoing serial data to complete
 void serialFlush(void);
+
+// Look for the next valid integer in the received serial data
+// Initial characters that are not digits or a minus sign are skipped
+// Parsing stops after a non-digit is found or a timeout
+// param skipChar = character to skip in the search (e.g. thousands separator)
+// Return the parsed number or 0 if there was a timeout
+int32_t serialParseInt(char skipChar);
+
+// Look at incoming serial data without removing it from the queue
+// Returns the first byte of incoming serial data (or -1 if no data is available)
+int16_t serialPeek(void);
 
 // Read incoming serial data
 // Returns the first byte of incoming serial data (or -1 if no data is available)
