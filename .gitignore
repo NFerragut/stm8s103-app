@@ -1,5 +1,7 @@
 *.bak
 *.dep
+*.o
+*.ls
 *.pdb
 *.spy
 *.wdb
