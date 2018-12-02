@@ -93,6 +93,7 @@ static void checkMicroDelay(uint16_t delay);
 static void checkMilliDelay(uint32_t delay);
 static void checkPwmOut(pinType pwm, pinType feedback);
 static void checkSerialConfig(uint32_t speed, serialConfigType cfg);
+static void checkSerialInt(char* string, char skip, int32_t expected);
 static void checkSerialRead(void);
 static void checkShiftIn(pinType dataPin, pinType clockPin, bitOrderType order, uint8_t idle);
 static void checkShiftOut(pinType dataPin, pinType clockPin, bitOrderType order, uint8_t idle);
@@ -275,6 +276,13 @@ static void checkSerialConfig(uint32_t speed, serialConfigType cfg) {
     ASSERT(feedback == 'A' + cfg);
     ASSERT((UART1.SR & 0x0f) == 0);
     serialEnd();
+}
+
+static void checkSerialInt(char* string, char skip, int32_t expected) {
+    serialWriteString(string);
+    serialFlush();
+    int32_t result = serialParseInt(skip);
+    ASSERT(result == expected);
 }
 
 static void checkSerialRead(void) {
@@ -575,30 +583,49 @@ static void testSerialCommunication(void) {
         }
     }
 
-    // test serial find functions
-    char target1[] = "Hello";
     serialBegin(115200, SERIAL_8N1);
+
+    // test serial find functions
+    char* buf = "Hello";
     serialWriteBuffer(buffer, BUFFER_LENGTH);
-    result = serialFind(target1);
+    result = serialFind(buf);
     ASSERT(result == 1);
     result = serialPeek();
     ASSERT(result == -1);
-    result = serialFind(target1);
+    result = serialFind(buf);
     ASSERT(result == 0);
     result = serialAvailable();
     ASSERT(result == 0);
     serialWriteBuffer(buffer, BUFFER_LENGTH);
-    result = serialFindUntil(target1, "o");
+    result = serialFindUntil(buf, "o");
     ASSERT(result == 1);
     result = serialPeek();
     ASSERT(result == -1);
-    result = serialFindUntil("World", "rl");
+    buf = "World";
+    result = serialFindUntil(buf, "rl");
     ASSERT(result == 0);
     result = serialPeek();
     ASSERT(result == -1);
     delayMicroseconds(300);
     result = serialAvailable();
     ASSERT(result > 0);
+
+    // test parse routines
+    buf = " 123";
+    checkSerialInt(buf, 0, 123);
+    buf = "T-123t";
+    checkSerialInt(buf, 0, -123);
+    buf = "T--23t";
+    checkSerialInt(buf, 0, -23);
+    buf = "202-555-1212";
+    checkSerialInt(buf, '-', 2025551212);
+    checkSerialInt(buf, 0, 202);
+    buf = "";
+    checkSerialInt(buf, 0, -555);
+    checkSerialInt(buf, 0, -1212);
+    buf = "-202-555-1212";
+    checkSerialInt(buf, '-', -2025551212);
+
     serialEnd();
 }
 

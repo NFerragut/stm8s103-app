@@ -318,13 +318,6 @@ uint8_t serialFindUntil(char* target, char* terminal);
 // Wait for the transmission of outgoing serial data to complete
 void serialFlush(void);
 
-// Look for the next valid integer in the received serial data
-// Initial characters that are not digits or a minus sign are skipped
-// Parsing stops after a non-digit is found or a timeout
-// param skipChar = character to skip in the search (e.g. thousands separator)
-// Return the parsed number or 0 if there was a timeout
-int32_t serialParseInt(char skipChar);
-
 // Look at incoming serial data without removing it from the queue
 // Returns the first byte of incoming serial data (or -1 if no data is available)
 int16_t serialPeek(void);
