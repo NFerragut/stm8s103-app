@@ -1,11 +1,11 @@
 ;-------------------------------------------------------------------------------
-; uart1TxByte() assembly function
+; uartTxByte() assembly function
 
 
 ;-------------------------------------------------------------------------------
 ; Declare external references
 
-    xdef uart1TxByte
+    xdef uartTxByte
     xdef txAddr
     xdef txSize
 
@@ -13,9 +13,9 @@
 ;-------------------------------------------------------------------------------
 ; Private Constant Declarations
 
-TEN:                    equ 3       ; UART1_CR2: Transmitter ENable
-UART1_DR:               equ $5231   ; UART1 Data Register
-UART1_CR2:              equ $5235   ; UART1 Control Register 2
+TEN:                    equ 3       ; UART_CR2: Transmitter ENable
+UART_DR:               equ $5231    ; UART Data Register
+UART_CR2:              equ $5235    ; UART Control Register 2
 
 
 ;-------------------------------------------------------------------------------
@@ -32,12 +32,12 @@ txSize:                 ds.w 1
 
     switch .text
 
-; uart1TxByte() assembly function
+; uartTxByte() assembly function
 ; return CC.Z = (txSize == 0)
-uart1TxByte:
-    ld a,[txAddr.w]     ; UART1_DR = (txAddr)
-    ld UART1_DR,a
-    bset UART1_CR2,#TEN ; enable transmitter in case this is the first tx byte
+uartTxByte:
+    ld a,[txAddr.w]     ; UART_DR = (txAddr)
+    ld UART_DR,a
+    bset UART_CR2,#TEN  ; enable transmitter in case this is the first tx byte
     inc txAddr+1        ; txAddr += 1
     jrne utbUpdSz
     inc txAddr

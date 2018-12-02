@@ -8,8 +8,8 @@
     xref _millisIsr
     xref _startup
     xref _toneIsr
-    xref _uart1RxIsr
-    xref _uart1TxIsr
+    xref _uartRxIsr
+    xref _uartTxIsr
     xref _unhandledIsr
 
 
@@ -58,9 +58,9 @@ vector: section
     dc.w $8200
     dc.w _unhandledIsr
     dc.w $8200
-    dc.w _uart1TxIsr    ; 17 UART1 Transmit Complete
+    dc.w _uartTxIsr     ; 17 UART1 Transmit Complete
     dc.w $8200
-    dc.w _uart1RxIsr    ; 18 UART1 Receive Register Data Full
+    dc.w _uartRxIsr     ; 18 UART1 Receive Register Data Full
     dc.w $8200
     dc.w _unhandledIsr  ; 19 I2C Interrupt
     dc.w $8200

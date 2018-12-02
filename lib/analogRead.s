@@ -19,7 +19,7 @@ ADC1_CR2:               equ $5402   ; ADC1 Configuration Register 2
 ADC1_DRH:               equ $5404   ; ADC1 Data Register (high byte)
 ADC1_DRL:               equ $5405   ; ADC1 Data Register (low byte)
 ADC1_TDRL:              equ $5407   ; ADC1 Trigger Disable Register Low
-UART1_CR2:              equ $5235   ; UART1 Control Register 2
+UART_CR2:               equ $5235   ; UART Control Register 2
 
 
 ;-------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ _analogRead:
     jruge arDone
     cp a,#3             ; if (pin < 3) goto arChannel
     jrult arChannel
-    tnz UART1_CR2       ; if (UART1 is enabled) goto arDone
+    tnz UART_CR2        ; if (UART is enabled) goto arDone
     jrne arDone
 arChannel:
     add a,#2            ; ADC channel = Analog pin number + 2

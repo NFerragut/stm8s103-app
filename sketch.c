@@ -44,7 +44,7 @@ void loop(void) {
     }
 }
 
-// SerialEvent occurs when new data is received by the UART1 peripheral.
+// SerialEvent occurs when new data is received by the UART peripheral.
 // This routine will only be called between calls to loop(); therefore, using
 // delay() in the loop() function will delay reaction to the received data.
 // Multiple bytes of data may be available.

@@ -16,14 +16,14 @@
 ;-------------------------------------------------------------------------------
 ; Private Constant Declarations
 
-IDLE:                   equ 4       ; UART1_SR: IDLE line detected
+IDLE:                   equ 4       ; UART_SR: IDLE line detected
 MIN_BAUD:               equ 245     ; minimum baud rate supported
-UART1_SR:               equ $5230   ; UART1 Status Register
-UART1_BRR1:             equ $5232   ; UART1 Baud Rate Register 1
-UART1_BRR2:             equ $5233   ; UART1 Baud Rate Register 2
-UART1_CR1:              equ $5234   ; UART1 Control Register 1
-UART1_CR2:              equ $5235   ; UART1 Control Register 2
-UART1_CR3:              equ $5236   ; UART1 Control Register 3
+UART_SR:                equ $5230   ; UART Status Register
+UART_BRR1:              equ $5232   ; UART Baud Rate Register 1
+UART_BRR2:              equ $5233   ; UART Baud Rate Register 2
+UART_CR1:               equ $5234   ; UART Control Register 1
+UART_CR2:               equ $5235   ; UART Control Register 2
+UART_CR3:               equ $5236   ; UART Control Register 3
 
 
 ;-------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ UART_CNFG:              dc.b 0x00, 0x00         ; SERIAL_8N1
 
 ; _serialBegin()
 ; SP3 = requested speed (bps)
-; SP7 = requested UART1 configuration
+; SP7 = requested UART configuration
 _serialBegin:
     clrw x              ; X = offset into UART_CONFIG data
     ld a,(7,sp)
@@ -54,10 +54,10 @@ _serialBegin:
     ld xl,a
     slaw x
 sbDefCfg:
-    ld a,(UART_CNFG,x)  ; UART1_CR1 = UART_CONFIG[X]
-    ld UART1_CR1,a
-    ld a,(UART_CNFG+1,x); UART1_CR3 = UART_CONFIG[X+1]
-    ld UART1_CR3,a
+    ld a,(UART_CNFG,x)  ; UART_CR1 = UART_CONFIG[X]
+    ld UART_CR1,a
+    ld a,(UART_CNFG+1,x); UART_CR3 = UART_CONFIG[X+1]
+    ld UART_CR3,a
     ldw x,(3,sp)        ; if (speed < MIN_BAUD) speed = MIN_BAUD
     jrne sbDivisor2
     ldw x,#MIN_BAUD
@@ -77,7 +77,7 @@ sbDivisor2:
     ldw x,sp            ; c_lreg /= speed
     addw x,#3
     call c_ludv
-    ldw x,c_lreg+2      ; UART1_BRR2 = ((divisor >> 8) & 0xF0) + (divisor & 0x0F)
+    ldw x,c_lreg+2      ; UART_BRR2 = ((divisor >> 8) & 0xF0) + (divisor & 0x0F)
     swapw x
     srlw x
     srlw x
@@ -85,15 +85,15 @@ sbDivisor2:
     srlw x
     ld a,xl
     swap a
-    ld UART1_BRR2,a
-    ldw x,c_lreg+2      ; UART1_BRR1 = (divisor >> 4) & 0xFF
+    ld UART_BRR2,a
+    ldw x,c_lreg+2      ; UART_BRR1 = (divisor >> 4) & 0xFF
     srlw x
     srlw x
     srlw x
     srlw x
     ld a,xl
-    ld UART1_BRR1,a
-    mov UART1_CR2,#$24  ; Enable UART1 receiver
+    ld UART_BRR1,a
+    mov UART_CR2,#$24   ; Enable UART receiver
     ret
 
 

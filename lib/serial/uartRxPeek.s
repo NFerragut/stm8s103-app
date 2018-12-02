@@ -1,18 +1,14 @@
 ;-------------------------------------------------------------------------------
-; serialFlush() function
+; uartRxPeek() assembly function
 
 
 ;-------------------------------------------------------------------------------
 ; Declare external references
 
-    xdef _serialFlush
+    xdef uartRxPeek
 
-
-;-------------------------------------------------------------------------------
-; Private Constant Declarations
-
-TC:                     equ 6       ; UART1_SR: Transmission Complete
-UART1_SR:               equ $5230   ; UART1 Status Register
+    xref rxBuf
+    xref rxBufRd
 
 
 ;-------------------------------------------------------------------------------
@@ -20,10 +16,17 @@ UART1_SR:               equ $5230   ; UART1 Status Register
 
     switch .text
 
-; _serialFlush() function
-_serialFlush:
-    ; wait for all queued serial data to be sent
-    btjf UART1_SR,#TC,_serialFlush
+; uartRxPeek() assembly function
+; assumes data is available (rxBufCnt > 0)
+; return A = The next byte in the UART Rx buffer
+; return X unchanged
+uartRxPeek:
+    pushw x
+    clrw x              ; X = rxBufRd
+    ld a,rxBufRd
+    ld xl,a
+    ld a,(rxBuf,x)      ; A = rxBuf[rxBufRd]
+    popw x
     ret
 
 

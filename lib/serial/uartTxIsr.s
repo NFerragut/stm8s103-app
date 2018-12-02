@@ -1,23 +1,23 @@
 ;-------------------------------------------------------------------------------
-; uart1TxIsr() interrupt service routine
+; uartTxIsr() interrupt service routine
 
-    include "uart1Config.i"
+    include "uartConfig.i"
 
 
 ;-------------------------------------------------------------------------------
 ; Declare external references
 
-    xdef _uart1TxIsr
+    xdef _uartTxIsr
 
-    xref uart1TxByte
+    xref uartTxByte
     xref txSize
 
 
 ;-------------------------------------------------------------------------------
 ; Private Constant Declarations
 
-TIEN:                   equ 7       ; UART1_CR2: Transmit Interrupt ENable
-UART1_CR2:              equ $5235   ; UART1 Control Register 2
+TIEN:                   equ 7       ; UART_CR2: Transmit Interrupt ENable
+UART_CR2:               equ $5235   ; UART Control Register 2
 
 
 ;-------------------------------------------------------------------------------
@@ -25,14 +25,14 @@ UART1_CR2:              equ $5235   ; UART1 Control Register 2
 
     switch .text
 
-; _uart1TxIsr() interrupt service routine
-_uart1TxIsr:
+; _uartTxIsr() interrupt service routine
+_uartTxIsr:
     ldw x,txSize        ; if (txSize == 0) goto utiDisable
     jreq utiDisable
-    call uart1TxByte    ; send next byte
+    call uartTxByte     ; send next byte
     jrne utiDone        ; if (txSize > 0) goto utiDone
 utiDisable:
-    bres UART1_CR2,#TIEN; disable UART1 Tx interrupt
+    bres UART_CR2,#TIEN ; disable UART Tx interrupt
 utiDone:
     iret
 

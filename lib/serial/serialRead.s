@@ -8,7 +8,7 @@
     xdef _serialRead
 
     xref rxBufCnt
-    xref uart1RxByte
+    xref uartRxByte
 
 
 ;-------------------------------------------------------------------------------
@@ -17,8 +17,8 @@
     switch .text
 
 ; _serialRead() function
-; Return X = The next byte in the UART1 Rx buffer
-; Return X = -1 if there is no data in the UART1 Rx buffer
+; Return X = The next byte in the UART Rx buffer
+; Return X = -1 if there is no data in the UART Rx buffer
 _serialRead:
     clrw x              ; if (no received data) return -1
     ld a,rxBufCnt
@@ -26,7 +26,7 @@ _serialRead:
     decw x
     ret
 srByte:
-    call uart1RxByte    ; A = next byte in serial RX queue
+    call uartRxByte     ; A = next byte in serial RX queue
     ld xl,a             ; X = A
     ret
 

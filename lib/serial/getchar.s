@@ -1,14 +1,14 @@
 ;-------------------------------------------------------------------------------
-; uart1RxPeek() assembly function
+; getchar() function
 
 
 ;-------------------------------------------------------------------------------
 ; Declare external references
 
-    xdef uart1RxPeek
+    xdef _getchar
 
-    xref rxBuf
-    xref rxBufRd
+    xref rxBufCnt
+    xref uartRxByte
 
 
 ;-------------------------------------------------------------------------------
@@ -16,17 +16,14 @@
 
     switch .text
 
-; uart1RxPeek() assembly function
-; assumes data is available (rxBufCnt > 0)
-; return A = The next byte in the UART1 Rx buffer
-; return X unchanged
-uart1RxPeek:
-    pushw x
-    clrw x              ; X = rxBufRd
-    ld a,rxBufRd
-    ld xl,a
-    ld a,(rxBuf,x)      ; A = rxBuf[rxBufRd]
-    popw x
+; _getchar() function
+; blocking function to work with other existing library functions
+; pulls data from the RX queue
+; Return A = The UART received byte
+_getchar:
+    tnz rxBufCnt        ; wait for a received character
+    jreq _getchar
+    call uartRxByte     ; read next byte in RX queue
     ret
 
 

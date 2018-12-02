@@ -14,7 +14,7 @@
 ; Private Constant Declarations
 
 GPIO_BASE:              equ $5000   ; Base address for GPIO port registers
-UART1_CR2:              equ $5235   ; Address of UART1 Control Register 2
+UART_CR2:               equ $5235   ; UART Control Register 2
 
 
 ;-------------------------------------------------------------------------------
@@ -103,9 +103,9 @@ getPinData:
     clrw x              ; X = 0 (default if pin is invalid)
     cp a,#16            ; if (pin >= 16) return
     jruge gdpdDone
-    cp a,#14            ; if (pin >= 14) && (UART1 is active) return
+    cp a,#14            ; if (pin >= 14) && (UART is active) return
     jrult gdpdGoodPin
-    tnz UART1_CR2
+    tnz UART_CR2
     jrne gdpdDone
 gdpdGoodPin:
     sla a               ; X = address of DIGITAL_PINS[pin]

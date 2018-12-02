@@ -1,7 +1,7 @@
 ;-------------------------------------------------------------------------------
 ; serialReadBytesUntil() function
 
-    include "uart1Config.i"
+    include "uartConfig.i"
 
 
 ;-------------------------------------------------------------------------------
@@ -15,8 +15,8 @@
     xref rxBufRd
     xref serialTimerCheck
     xref serialTimerStart
-    xref uart1RxPeek
-    xref uart1RxPop
+    xref uartRxPeek
+    xref uartRxPop
 
 
 ;-------------------------------------------------------------------------------
@@ -51,10 +51,10 @@ SIZE:                   equ 10
 srbuNext:
     tnz rxBufCnt        ; if (no bytes in RX queue) goto srbuWait
     jreq srbuWait
-    call uart1RxPeek    ; check the next byte in the serial RX queue
+    call uartRxPeek     ; check the next byte in the serial RX queue
     cp a,(EOS,sp)       ; if (char == EOS) goto srbuDone
     jreq srbuDone
-    call uart1RxPop
+    call uartRxPop
     ld (y),a            ; write the byte to the buffer
     incw y              ; move to next address in the buffer
     incw x              ; another byte written

@@ -10,7 +10,7 @@
     xref rxBufCnt
     xref serialTimerCheck
     xref serialTimerStart
-    xref uart1RxByte
+    xref uartRxByte
 
 
 ;-------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ _serialFindUntil:
 sfuNext:
     tnz rxBufCnt        ; if (no bytes in RX queue) goto sfWait
     jreq sfuWait
-    call uart1RxByte    ; read the next byte from the serial RX queue
+    call uartRxByte     ; read the next byte from the serial RX queue
     cp a,(x)            ; if (byte does not match target) goto sfuNoFind
     jrne sfuNoFind
     incw x              ; advance to next target character

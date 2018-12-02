@@ -7,7 +7,7 @@
 
     xdef _serialWriteBuffer
 
-    xref uart1TxByte
+    xref uartTxByte
     xref txAddr
     xref txSize
 
@@ -15,10 +15,10 @@
 ;-------------------------------------------------------------------------------
 ; Private Constant Declarations
 
-TC:                     equ 6       ; UART1_SR: Transmission Complete
-TIEN:                   equ 7       ; UART1_CR2: Transmit Interrupt ENable
-UART1_SR:               equ $5230   ; UART1 Status Register
-UART1_CR2:              equ $5235   ; UART1 Control Register 2
+TC:                     equ 6       ; UART_SR: Transmission Complete
+TIEN:                   equ 7       ; UART_CR2: Transmit Interrupt ENable
+UART_SR:                equ $5230   ; UART Status Register
+UART_CR2:               equ $5235   ; UART Control Register 2
 
 
 ;-------------------------------------------------------------------------------
@@ -27,20 +27,20 @@ UART1_CR2:              equ $5235   ; UART1 Control Register 2
     switch .text
 
 ; _serialWriteBuffer() function
-; X = Address of data to write to UART1
-; SP3 = Length of data to write to UART1
-; return X = # of bytes written to UART1
+; X = Address of data to write to UART
+; SP3 = Length of data to write to UART
+; return X = # of bytes written to UART
 _serialWriteBuffer:
     ldw y,(3,sp)        ; Y = # of bytes to send
     jreq swbReturn0
 swbFlush:
     ; wait for all previously queued serial data to be sent
-    btjf UART1_SR,#TC,swbFlush
+    btjf UART_SR,#TC,swbFlush
     ldw txAddr,x        ; txAddr = buffer
     ldw txSize,y        ; txSize = length
-    call uart1TxByte    ; send the first byte
-    jreq swbReturn1     ; if (more bytes) enable UART1 Tx Interrupt
-    bset UART1_CR2,#TIEN
+    call uartTxByte     ; send the first byte
+    jreq swbReturn1     ; if (more bytes) enable UART Tx Interrupt
+    bset UART_CR2,#TIEN
 swbReturn1:
     clrw x              ; return 1
     incw x

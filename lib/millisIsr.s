@@ -6,9 +6,10 @@
 ; Declare external references
 
     xdef _millisIsr
-    xdef ms
     xdef tonePin
     xdef toneStop
+
+    xref ms
 
 
 ;-------------------------------------------------------------------------------
@@ -16,7 +17,6 @@
 
     switch .bsct
 
-ms:                     ds.l 1
 tonePin:                ds.b 1
 toneStop:               ds.l 1
 

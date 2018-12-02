@@ -21,6 +21,7 @@
 #include "arduino.h"
 #include <limits.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "stm8s103.h"
 #include <string.h>
 #include "unitTest.h"
@@ -31,7 +32,7 @@
 
 // -- Private Constant Declarations --
 
-#define BUFFER_LENGTH (sizeof(buffer)-1)
+#define BUFFER_LENGTH (sizeof(buf1) - 1)
 #define MAX_ATOD_LOW 0x010
 #define MAX_MICRO_ERROR 200L
 #define MAX_MILLI_ERROR 1
@@ -51,7 +52,7 @@
 // -- Private Flash-Based Constant Definitions --
 
 static const uint32_t baudRates[] = { 300, 1200, 9600, 57600, 115200 };
-static const char buffer[] = "Hello, World!";
+static const char buf1[] = "Hello, World!";
 static const float frequencies[] = {
                             NOTE_B0,    NOTE_C1,    NOTE_CS1,   NOTE_D1,
     NOTE_DS1,   NOTE_E1,    NOTE_F1,    NOTE_FS1,   NOTE_G1,    NOTE_GS1,
@@ -93,7 +94,6 @@ static void checkMicroDelay(uint16_t delay);
 static void checkMilliDelay(uint32_t delay);
 static void checkPwmOut(pinType pwm, pinType feedback);
 static void checkSerialConfig(uint32_t speed, serialConfigType cfg);
-static void checkSerialInt(char* string, char skip, int32_t expected);
 static void checkSerialRead(void);
 static void checkShiftIn(pinType dataPin, pinType clockPin, bitOrderType order, uint8_t idle);
 static void checkShiftOut(pinType dataPin, pinType clockPin, bitOrderType order, uint8_t idle);
@@ -278,22 +278,15 @@ static void checkSerialConfig(uint32_t speed, serialConfigType cfg) {
     serialEnd();
 }
 
-static void checkSerialInt(char* string, char skip, int32_t expected) {
-    serialWriteString(string);
-    serialFlush();
-    int32_t result = serialParseInt(skip);
-    ASSERT(result == expected);
-}
-
 static void checkSerialRead(void) {
-    char buf[BUFFER_LENGTH];
+    char buf2[BUFFER_LENGTH];
     serialFlush();
     ASSERT(serialAvailable() == BUFFER_LENGTH);
-    uint8_t pos = (uint8_t)(strchr(buffer, 'W') - buffer);
-    ASSERT(serialReadBytesUntil('W', buf, BUFFER_LENGTH) == pos);
-    ASSERT(memcmp(buf, buffer, pos) == 0);
-    ASSERT(serialReadBytes(buf, BUFFER_LENGTH) == BUFFER_LENGTH - pos);
-    ASSERT(memcmp(buf, &buffer[pos], BUFFER_LENGTH - pos) == 0);
+    uint8_t pos = (uint8_t)(strchr(buf1, 'W') - buf1);
+    ASSERT(serialReadBytesUntil('W', buf2, BUFFER_LENGTH) == pos);
+    ASSERT(memcmp(buf2, buf1, pos) == 0);
+    ASSERT(serialReadBytes(buf2, BUFFER_LENGTH) == BUFFER_LENGTH - pos);
+    ASSERT(memcmp(buf2, &buf1[pos], BUFFER_LENGTH - pos) == 0);
 }
 
 static void checkShiftIn(pinType dataPin, pinType clockPin, bitOrderType order, uint8_t idle) {
@@ -568,9 +561,9 @@ static void testSerialCommunication(void) {
 
     // test serial functions that work with character buffers
     serialBegin(115200, SERIAL_8N1);
-    serialWriteBuffer(buffer, BUFFER_LENGTH);
+    serialWriteBuffer(buf1, BUFFER_LENGTH);
     checkSerialRead();
-    serialWriteString(buffer);
+    serialWriteString(buf1);
     checkSerialRead();
     serialEnd();
 
@@ -586,45 +579,38 @@ static void testSerialCommunication(void) {
     serialBegin(115200, SERIAL_8N1);
 
     // test serial find functions
-    char* buf = "Hello";
-    serialWriteBuffer(buffer, BUFFER_LENGTH);
-    result = serialFind(buf);
+    serialWriteBuffer(buf1, BUFFER_LENGTH);
+    char* buf2 = "Hello";
+    result = serialFind(buf2);
     ASSERT(result == 1);
     result = serialPeek();
     ASSERT(result == -1);
-    result = serialFind(buf);
+    result = serialFind(buf2);
     ASSERT(result == 0);
     result = serialAvailable();
     ASSERT(result == 0);
-    serialWriteBuffer(buffer, BUFFER_LENGTH);
-    result = serialFindUntil(buf, "o");
+    serialWriteBuffer(buf1, BUFFER_LENGTH);
+    result = serialFindUntil(buf2, "o");
     ASSERT(result == 1);
     result = serialPeek();
     ASSERT(result == -1);
-    buf = "World";
-    result = serialFindUntil(buf, "rl");
+    buf2 = "World";
+    result = serialFindUntil(buf2, "rl");
     ASSERT(result == 0);
     result = serialPeek();
     ASSERT(result == -1);
     delayMicroseconds(300);
     result = serialAvailable();
     ASSERT(result > 0);
+    delayMicroseconds(300);
+    while (serialAvailable())
+        result = serialRead();
 
-    // test parse routines
-    buf = " 123";
-    checkSerialInt(buf, 0, 123);
-    buf = "T-123t";
-    checkSerialInt(buf, 0, -123);
-    buf = "T--23t";
-    checkSerialInt(buf, 0, -23);
-    buf = "202-555-1212";
-    checkSerialInt(buf, '-', 2025551212);
-    checkSerialInt(buf, 0, 202);
-    buf = "";
-    checkSerialInt(buf, 0, -555);
-    checkSerialInt(buf, 0, -1212);
-    buf = "-202-555-1212";
-    checkSerialInt(buf, '-', -2025551212);
+    // test stdlib functions
+    puts(buf1);
+    char buf3[BUFFER_LENGTH+1];
+    ASSERT(gets(buf3) != NULL);
+    ASSERT(memcmp(buf1, buf3, BUFFER_LENGTH+1) == 0);
 
     serialEnd();
 }

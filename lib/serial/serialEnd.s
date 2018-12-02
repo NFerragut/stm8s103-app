@@ -16,12 +16,10 @@
 ;-------------------------------------------------------------------------------
 ; Private Constant Declarations
 
-RXNE:                   equ 5       ; UART1_SR: read (RX) data register Not Empty
-TC:                     equ 6       ; UART1_SR: Transmission Complete
-TXE:                    equ 7       ; UART1_SR: transmit (TX) data register Empty
-UART1_SR:               equ $5230   ; UART1 Status Register
-UART1_DR:               equ $5231   ; UART1 Status Register
-UART1_CR2:              equ $5235   ; UART1 Control Register 2
+TC:                     equ 6       ; UART_SR: Transmission Complete
+UART_SR:                equ $5230   ; UART Status Register
+UART_DR:                equ $5231   ; UART Status Register
+UART_CR2:               equ $5235   ; UART Control Register 2
 
 
 ;-------------------------------------------------------------------------------
@@ -32,19 +30,17 @@ UART1_CR2:              equ $5235   ; UART1 Control Register 2
 ; _serialEnd()
 _serialEnd:
     ; disable all UART2 interrupts, but leave receiver and transmitter enabled
-    mov UART1_CR2,#$0C
+    mov UART_CR2,#$0C
 seWait:
     ; wait for any outgoing byte to finish transmitting
-    btjf UART1_SR,#TC,seWait
-    clr UART1_CR2       ; disable UART1
+    btjf UART_SR,#TC,seWait
+    clr UART_CR2        ; disable UART
     clr txSize          ; clear buffer variables
     clr txSize+1
     clr rxBufCnt
     clr rxBufWr
     clr rxBufRd
-;seRead:
-;    ld a,UART1_DR       ; set UART1_SR.RXNE = 0
-;    btjt UART1_SR,#RXNE,seRead
+    ld a,UART_DR        ; read any data that may have been received
     ret
 
 
