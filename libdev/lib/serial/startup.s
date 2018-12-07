@@ -1,20 +1,24 @@
 ;-------------------------------------------------------------------------------
-; init() function
-; Initializes the microcontroller.
-; - Setup TIM4 for system timing
-; - Setup TIM1 and TIM2 for PWM outputs
-; - Configure PD1 as SWIM debug pin or normal I/O pin
+; C Startup routine for the STM8S103
+; Initializes RAM to zero, but does not support initialized C variables
 
 
 ;-------------------------------------------------------------------------------
 ; Declare external references
 
-    xdef _init
+    xdef _startup
+
+    xref __stack        ; Starting address of the stack
+    xref _loop          ; The Arduino-style loop() function
+    xref _serialEvent   ; The Arduino-style serialEvent() function
+    xref _setup         ; The Arduino-style setup() function
+    xref rxBufCnt       ; The number of bytes in the serial RX queue
 
 
 ;-------------------------------------------------------------------------------
 ; Private Constant Declarations
 
+CFG_GCR:                equ $7f60
 CLK_SWR:                equ $50c4
 CLK_CKDIVR:             equ $50c6
 TIM1_CR1:               equ $5250
@@ -37,17 +41,26 @@ TIM4_PSCR:              equ $5347
 TIM4_ARR:               equ $5348
 
 
-
 ;-------------------------------------------------------------------------------
 ; Function Definitions
 
     switch .text
 
-; Startup code (Reset vector)
-_init:
+    ; Startup code (Reset vector)
+_startup:
     ; Setup system clock
     mov CLK_SWR,#0xE1   ; Clock @ 16MHz
     clr CLK_CKDIVR
+
+    ldw x,#__stack      ; Initialize the stack pointer
+    ldw sp,x
+clrNext:
+    clr (x)             ; Initialize RAM to zero
+    decw x
+    jrpl clrNext
+ifndef DEBUG
+    mov CFG_GCR,#1      ; Disable debugging with SWIM pin
+endif
 
     ; Setup TIM4 to support general application timing
     mov TIM4_ARR,#249   ; Clock TIM4 @ 125kHz
@@ -64,17 +77,27 @@ _init:
     ld a,#$68           ; set TIM1 & TIM2 channels as PWM output channels
     ldw x,#2
     ld (TIM1_CCMR1+1,x),a
-iNext:
+pwmNext:
     ld (TIM1_CCMR1,x),a
     ld (TIM2_CCMR1,x),a
     decw x
-    jrpl iNext
+    jrpl pwmNext
     bset TIM1_BKR,#7    ; TIM1_BKR.MOE = 1
     bset TIM1_EGR,#0    ; TIM1_EGR.UG = 1
     bset TIM1_CR1,#0    ; enable TIM1
     bset TIM2_EGR,#0    ; TIM2_EGR.UG = 1
     bset TIM2_CR1,#0    ; enable TIM2
-    ret
+
+    ; Start the arduino-style application
+_main:
+    rim                 ; Enable interrupts
+    call _setup         ; Application-specific program setup
+mainLoop:
+    call _loop          ; Application-specific main loop
+    tnz rxBufCnt        ; Check for incoming serial data
+    jreq mainLoop
+    call _serialEvent   ; Application-specific serial data handling
+    jra mainLoop
 
 
 ;-------------------------------------------------------------------------------

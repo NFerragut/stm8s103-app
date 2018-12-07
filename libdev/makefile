@@ -3,17 +3,20 @@
 # Application name
 APP = app
 
+# Directories
+INCDIR = inc
+LIBDIR = lib
+OUTDIR = Debug
+
 # Assembler
 AS = castm8
-AFLAGS = -iinc -l
+AFLAGS = -i$(INCDIR) -l
 
 # Compiler
 CC = cxstm8
-OUTDIR = Debug
-CFLAGS = -cl$(OUTDIR) -co$(OUTDIR) -dDEBUG -iinc -pc99 -l +debug +mods0 +proto +strict +warn
+CFLAGS = -cl$(OUTDIR) -co$(OUTDIR) -dDEBUG -i$(INCDIR) -pc99 -l +debug +mods0 +proto +strict +warn
 
 # Library
-LIBDIR = lib
 LIBSRCS := $(shell ls $(LIBDIR)/*.s)
 LIBOBJS = $(addsuffix .o,$(basename $(LIBSRCS)))
 SERDIR = lib/serial
@@ -112,7 +115,7 @@ $(SERDIR)/%.o : $(SERDIR)/%.s
 	@echo $<:
 	@cd $(SERDIR); $(AS) $(AFLAGS) $(notdir $<)
 
-$(LISBDIR)/%.o : $(LIBDIR)/%.s
+$(LIBDIR)/%.o : $(LIBDIR)/%.s
 	@echo $<:
 	@cd $(LIBDIR); $(AS) $(AFLAGS) $(notdir $<)
 
