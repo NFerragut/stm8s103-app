@@ -8,16 +8,15 @@
 1. [Arduino-Style I/O Pins](#arduino-style-io-pins)
 1. [Arduino-Style Functions](#arduino-style-functions)
 1. [Project Setup](#project-setup)
-1. []()
 
 
 ## Introduction
 
-The STM8S103F3P6 microcontroller is a very small microcontroller by today's standards. But, it is also very low cost. You can get each [single development board](https://makerfabs.com/Open-Hardware?product_id=265) for around a dollar. The [ST-Link V2 Debugger](https://www.amazon.com/s/?url=search-alias%3Daps&field-keywords=st-link+v2) costs no more than lunch out if you buy in the states.
+The STM8S103F3P6 microcontroller is a very small microcontroller. But, it is also very low cost. You can get each [single development board](https://makerfabs.com/Open-Hardware?product_id=265) for around a dollar. The [ST-Link V2 Debugger](https://www.amazon.com/s/?url=search-alias%3Daps&field-keywords=st-link+v2) costs no more than a fast-food lunch if you buy in the states.
 
 [![](img/stm8s103f3p6-dev-board.png "STM8S103F3P6 Dev Board")](https://makerfabs.com/Open-Hardware?product_id=265) [![](img/st-link-v2.png "Mini ST-Link v2")](https://www.amazon.com/s/?url=search-alias%3Daps&field-keywords=st-link+v2)
 
-In this project, I created Arduino-style functions that I can use to setup this board for small and simple projects.
+This project creates Arduino-style functions that allow fast setup of this board for small and simple projects.
 
 
 ## Microcontroller Overview
